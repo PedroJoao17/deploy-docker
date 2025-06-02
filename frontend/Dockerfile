@@ -1,5 +1,5 @@
-# frontend/Dockerfile
-FROM node:20
+# Etapa 1: Build do projeto com Vite
+FROM node:20 AS builder
 
 WORKDIR /app
 
@@ -8,6 +8,20 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 5173
+RUN npm run build
 
-CMD ["npm", "run", "dev"]
+# Etapa 2: Servir com Nginx
+FROM nginx:alpine
+
+# Copia os arquivos estáticos do Vite (dist) para o Nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Remove a configuração padrão do Nginx
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Adiciona configuração personalizada para SPA
+COPY nginx.conf /etc/nginx/conf.d
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

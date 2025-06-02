@@ -1,4 +1,4 @@
-version: '3.9'
+version: '3.8'
 
 services:
   backend:
@@ -7,22 +7,12 @@ services:
       - "3000:3000"
     volumes:
       - ./backend:/app
-    environment:
-      - NODE_ENV=development
-    networks:
-      - app-network
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
     ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
+      - "8080:80"
     depends_on:
       - backend
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
+    restart: unless-stopped
